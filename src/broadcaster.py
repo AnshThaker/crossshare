@@ -35,7 +35,10 @@ class Broadcaster:
                     if addr[0] != my_ip:
                         decoded_message = message.decode().split('+')
                         if decoded_message[0] == 'crossshare_by_ansh_thaker':
-                            self.__discovered_devices[addr[0]] = (decoded_message[1], decoded_message[2])
+                            try:
+                                self.__discovered_devices[addr[0]] = (decoded_message[1], decoded_message[2])
+                            except Exception:
+                                self.__discovered_devices[addr[0]] = (decoded_message[1], 'u')
                 except socket.timeout:
                     continue
         
