@@ -8,7 +8,6 @@ broadcast_thread = threading.Thread(target=broadcaster.broadcast_devices)
 broadcast_thread.start()
 
 def main(page: ft.Page):
-
     page.title = 'CrossShare'
 
     def close_send_dialog(e):
