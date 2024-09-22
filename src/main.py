@@ -10,6 +10,18 @@ broadcast_thread.start()
 def main(page: ft.Page):
     page.title = 'CrossShare'
 
+    def file_dialog_result(e: ft.FilePickerResultEvent, ip, file_dialog):
+        page.overlay.remove(file_dialog)
+        page.update()
+        if e.files:
+            file_paths = tuple(file.path for file in e.files)
+
+    def open_file_dialog(e, ip):
+        file_dialog = ft.FilePicker(on_result=lambda e: file_dialog_result(e, ip, file_dialog))
+        page.overlay.append(file_dialog)
+        page.update()
+        file_dialog.pick_files(allow_multiple=True, dialog_title='Select File(s) To Send')
+
     def close_send_dialog(e):
         send_dialog.open = False
         page.update()
@@ -73,7 +85,7 @@ def main(page: ft.Page):
             if devices:
                 for ip, (hostname, os_name) in devices.items():
                     icon = get_icon_for_os(os_name)
-                    devices_list_view.controls.append(ft.ListTile(title=ft.Text(hostname), subtitle=ft.Text(ip), mouse_cursor=ft.MouseCursor.CLICK, leading=ft.Icon(icon)))
+                    devices_list_view.controls.append(ft.ListTile(title=ft.Text(hostname), subtitle=ft.Text(ip), mouse_cursor=ft.MouseCursor.CLICK, leading=ft.Icon(icon), on_click=lambda e: open_file_dialog(e, ip)))
                 send_dialog.content = devices_list_view
                 send_dialog.actions = [close_send_dialog_button, refresh_send_dialog_button]
                 send_dialog.actions_alignment = ft.MainAxisAlignment.END
