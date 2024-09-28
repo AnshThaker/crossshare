@@ -30,6 +30,7 @@ class Receiver:
                     print(f"Total Size: {total_file_size} bytes")
 
                     accept_or_decline = input(f'Would you like to receive the file(s)? [a/d] ').lower()
+                    print(accept_or_decline)
 
                     if accept_or_decline == 'a':
                         conn.sendall(b'accept')
