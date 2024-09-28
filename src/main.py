@@ -1,11 +1,17 @@
 import flet as ft
 import threading
 from broadcaster import Broadcaster
+from sender import Sender
+from receiver import Receiver
 import constants
 
 broadcaster = Broadcaster()
+sender = Sender()
+receiver = Receiver()
 broadcast_thread = threading.Thread(target=broadcaster.broadcast_devices)
 broadcast_thread.start()
+receive_thread = threading.Thread(target=receiver.receive_file)
+receive_thread.start()
 
 def main(page: ft.Page):
     page.title = 'CrossShare'
@@ -15,6 +21,7 @@ def main(page: ft.Page):
         page.update()
         if e.files:
             file_paths = tuple(file.path for file in e.files)
+            sender.send_file(file_paths, ip)
 
     def open_file_dialog(e, ip):
         file_dialog = ft.FilePicker(on_result=lambda e: file_dialog_result(e, ip, file_dialog))
