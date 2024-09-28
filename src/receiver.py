@@ -7,11 +7,11 @@ class Receiver:
         self.__listening_port = listening_port
         self.__chunk_size = chunk_size
 
-    def receive_file():
+    def receive_file(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
             server.bind(('0.0.0.0', self.__listening_port))
             server.listen(5)
-            print(f'Listening on port {port}...')
+            print(f'Listening on port {self.__listening_port}...')
 
             while True:
                 conn, addr = server.accept()
