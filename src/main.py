@@ -8,20 +8,23 @@ import constants
 broadcaster = Broadcaster()
 sender = Sender()
 receiver = Receiver()
-broadcast_thread = threading.Thread(target=broadcaster.broadcast_devices)
-broadcast_thread.start()
-receive_thread = threading.Thread(target=receiver.receive_file)
-receive_thread.start()
 
 def main(page: ft.Page):
     page.title = 'CrossShare'
+
+    snack = ft.SnackBar(ft.Text('CrossShare by Ansh Thaker'), duration=3000, bgcolor=ft.colors.WHITE)
+
+    broadcast_thread = threading.Thread(target=broadcaster.broadcast_devices)
+    broadcast_thread.start()
+    receive_thread = threading.Thread(target=receiver.receive_file, args=(page, snack,))
+    receive_thread.start()
 
     def file_dialog_result(e: ft.FilePickerResultEvent, ip, file_dialog):
         page.overlay.remove(file_dialog)
         page.update()
         if e.files:
             file_paths = tuple(file.path for file in e.files)
-            sender.send_file(file_paths, ip)
+            sender.send_file(file_paths, ip, page, snack)
 
     def open_file_dialog(e, ip):
         file_dialog = ft.FilePicker(on_result=lambda e: file_dialog_result(e, ip, file_dialog))

@@ -1,17 +1,17 @@
 from constants import listening_port, chunk_size
 import socket
 import ast
+import flet as ft
 
 class Receiver:
     def __init__(self):
         self.__listening_port = listening_port
         self.__chunk_size = chunk_size
 
-    def receive_file(self):
+    def receive_file(self, page, snack):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
             server.bind(('0.0.0.0', self.__listening_port))
             server.listen(5)
-            print(f'Listening on port {self.__listening_port}...')
 
             while True:
                 conn, addr = server.accept()
@@ -24,7 +24,11 @@ class Receiver:
                     file_names, total_file_size = files_info.split('+')
                     file_names = ast.literal_eval(file_names)
                     total_file_size = int(total_file_size)
-                    print(f"Connection from {sender_hostname}")
+                    snack.content = ft.Text(f'Connection from {sender_hostname}', color=ft.colors.BLACK)
+                    if snack not in page.overlay:
+                        page.overlay.append(snack)
+                    snack.open = True
+                    page.update()
                     for index, file_name in enumerate(file_names):
                         print(f'File {index + 1}: {file_name}')
                     print(f"Total Size: {total_file_size} bytes")
@@ -47,9 +51,13 @@ class Receiver:
                                         break
                                     file.write(data)
                                     # update progressbar
-                            print(f'Received file from {sender_hostname}: {file_name}')
+                            snack.content = ft.Text(f'Received file from {sender_hostname}: {file_name}', color=ft.colors.BLACK)
+                            snack.open = True
+                            page.update()
                             conn.sendall(b'completed')
                         # close progressbar
                     else:
                         conn.sendall(b'decline')
-                        print(f'File(s) declined.')
+                        snack.content = ft.Text('File(s) declined.', color=ft.colors.BLACK)
+                        snack.open = True
+                        page.update()
