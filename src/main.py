@@ -24,7 +24,20 @@ def main(page: ft.Page):
         page.update()
         if e.files:
             file_paths = tuple(file.path for file in e.files)
-            sender.send_file(file_paths, ip, page, snack)
+            try:
+                sender.send_file(file_paths, ip, page, snack)
+            except Exception as error:
+                global sending_error_dialog
+                sending_error_dialog = ft.AlertDialog(
+                    title=ft.Text('Error sending file(s)'),
+                    content=ft.Text(error),
+                    on_dismiss=remove_sending_error_dialog,
+                )
+                page.overlay.clear()
+                send_dialog.open = False
+                page.overlay.append(sending_error_dialog)
+                sending_error_dialog.open = True
+                page.update()
 
     def open_file_dialog(e, ip):
         file_dialog = ft.FilePicker(on_result=lambda e: file_dialog_result(e, ip, file_dialog))
@@ -34,6 +47,10 @@ def main(page: ft.Page):
 
     def close_send_dialog(e):
         send_dialog.open = False
+        page.update()
+
+    def remove_sending_error_dialog(e):
+        sending_error_dialog.open = False
         page.update()
 
     def remove_error_dialog(e):
