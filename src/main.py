@@ -33,8 +33,8 @@ def main(page: ft.Page):
                     content=ft.Text(error),
                     on_dismiss=remove_sending_error_dialog,
                 )
-                page.overlay.clear()
                 send_dialog.open = False
+                page.overlay.clear()
                 page.overlay.append(sending_error_dialog)
                 sending_error_dialog.open = True
                 page.update()
@@ -129,8 +129,8 @@ def main(page: ft.Page):
                 content=ft.Text(error),
                 on_dismiss=remove_error_dialog,
             )
-            page.overlay.clear()
             send_dialog.open = False
+            page.overlay.clear()
             page.overlay.append(error_dialog)
             error_dialog.open = True
             page.update()
