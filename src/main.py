@@ -19,13 +19,13 @@ def main(page: ft.Page):
     receive_thread = threading.Thread(target=receiver.receive_file, args=(page, snack,))
     receive_thread.start()
 
-    def file_dialog_result(e: ft.FilePickerResultEvent, ip, file_dialog):
+    def file_dialog_result(e: ft.FilePickerResultEvent, ip, file_dialog, send_dialog):
         page.overlay.remove(file_dialog)
         page.update()
         if e.files:
             file_paths = tuple(file.path for file in e.files)
             try:
-                sender.send_file(file_paths, ip, page, snack)
+                sender.send_file(file_paths, ip, page, snack, send_dialog)
             except Exception as error:
                 global sending_error_dialog
                 sending_error_dialog = ft.AlertDialog(
@@ -39,8 +39,8 @@ def main(page: ft.Page):
                 sending_error_dialog.open = True
                 page.update()
 
-    def open_file_dialog(e, ip):
-        file_dialog = ft.FilePicker(on_result=lambda e: file_dialog_result(e, ip, file_dialog))
+    def open_file_dialog(e, ip, send_dialog):
+        file_dialog = ft.FilePicker(on_result=lambda e: file_dialog_result(e, ip, file_dialog, send_dialog))
         page.overlay.append(file_dialog)
         page.update()
         file_dialog.pick_files(allow_multiple=True, dialog_title='Select File(s) To Send')
@@ -79,7 +79,7 @@ def main(page: ft.Page):
                 searching_progress_ring,
                 searching_text,
             ],
-            alignment = ft.MainAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER,
             spacing=20,
         )
 
@@ -112,7 +112,7 @@ def main(page: ft.Page):
             if devices:
                 for ip, (hostname, os_name) in devices.items():
                     icon = get_icon_for_os(os_name)
-                    devices_list_view.controls.append(ft.ListTile(title=ft.Text(hostname), subtitle=ft.Text(ip), mouse_cursor=ft.MouseCursor.CLICK, leading=ft.Icon(icon), on_click=lambda e: open_file_dialog(e, ip)))
+                    devices_list_view.controls.append(ft.ListTile(title=ft.Text(hostname), subtitle=ft.Text(ip), mouse_cursor=ft.MouseCursor.CLICK, leading=ft.Icon(icon), on_click=lambda e: open_file_dialog(e, ip, send_dialog)))
                 send_dialog.content = devices_list_view
                 send_dialog.actions = [close_send_dialog_button, refresh_send_dialog_button]
                 send_dialog.actions_alignment = ft.MainAxisAlignment.END

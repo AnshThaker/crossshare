@@ -8,7 +8,7 @@ class Sender:
         self.__target_port = target_port
         self.__chunk_size = chunk_size
 
-    def send_file(self, files, ip, page, snack):
+    def send_file(self, files, ip, page, snack, send_dialog):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             sock.connect((ip, self.__target_port))
@@ -30,6 +30,23 @@ class Sender:
                 total_files_size += os.path.getsize(file)
             
             sock.sendall(f"{file_names}+{total_files_size}".encode() + b"\n")
+
+            waiting_for_response_text = ft.Text('Waiting for response...', size=14)
+            waiting_for_response_progressbar = ft.ProgressBar(width=400, color='#3478f5', bgcolor='#eeeeee')
+            waiting_for_response_col = ft.Column(
+                [
+                    waiting_for_response_text,
+                    waiting_for_response_progressbar,
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                tight=True
+            )
+
+            send_dialog.content = waiting_for_response_col
+            send_dialog.actions = None
+            send_dialog.actions_alignment = None
+            page.update()
+
             acceptance = sock.recv(1024).decode().strip()
 
             if acceptance == 'accept':
@@ -52,7 +69,11 @@ class Sender:
                             snack.open = True
                             page.update()
                 # close progressbar
+                send_dialog.open = False
+                page.update()
             else:
+                send_dialog.open = False
+                page.update()
                 snack.content = ft.Text('Receiver declined the file(s).', color=ft.colors.BLACK)
                 snack.open = True
                 page.update()
