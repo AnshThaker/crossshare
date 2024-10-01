@@ -50,25 +50,37 @@ class Sender:
             acceptance = sock.recv(1024).decode().strip()
 
             if acceptance == 'accept':
-                snack.content = ft.Text('Receiver accepted the file(s).', color=ft.colors.BLACK)
-                snack.open = True
+                sending_file_text = ft.Text('Sending files...', size=14)
+                sending_files_progressbar = ft.ProgressBar(width=400, color='#3478f5', bgcolor='#eeeeee', value=0)
+                sending_files_col = ft.Column(
+                    [
+                        sending_file_text,
+                        sending_files_progressbar,
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    tight=True
+                )
+
+                send_dialog.content = sending_files_col
                 page.update()
-                # initialise progressbar
+
                 for file in files:
+                    sending_file_text.value = f'Sending file: {os.path.basename(file)}'
+                    page.update()
                     with open(file, 'rb') as to_send:
                         while True:
                             file_data = to_send.read(self.__chunk_size)
                             if not file_data:
                                 break
                             sock.sendall(file_data)
-                            # update progressbar
+                            sending_files_progressbar.value += (len(file_data)) / (total_files_size)
+                            page.update()
                         sock.sendall(b'<END>')
                         completed = sock.recv(1024).decode().strip()
                         if completed:
                             snack.content = ft.Text(f'File transfer completed successfully: {file}.', color=ft.colors.BLACK)
                             snack.open = True
                             page.update()
-                # close progressbar
                 send_dialog.open = False
                 page.update()
             else:
