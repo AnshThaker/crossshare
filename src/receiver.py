@@ -35,9 +35,29 @@ class Receiver:
                             page.overlay.append(snack)
                         snack.open = True
                         page.update()
+
+                        files_list_view = ft.ListView(height=300)
+                        files_list_view.controls.append(ft.Text(f'Would you like to receive these files from {sender_hostname}?', size=14))
+                        files_list_view.controls.append(ft.Divider())
                         for index, file_name in enumerate(file_names):
-                            print(f'File {index + 1}: {file_name}')
-                        print(f"Total Size: {total_file_size} bytes")
+                            files_list_view.controls.append(ft.Text(f'File {index + 1}: {file_name}', size=12))
+                        files_list_view.controls.append(ft.Divider())
+                        files_list_view.controls.append(ft.Text(f'Total Size: {total_file_size} bytes', size=14))
+
+                        accept_button = ft.ElevatedButton('Accept', icon='check',)
+                        decline_button = ft.ElevatedButton('Decline', icon='close',)
+
+                        acceptance_dialog = ft.AlertDialog(
+                            title=ft.Text('Incoming file(s)'),
+                            modal=True,
+                            content=files_list_view,
+                            actions=[accept_button, decline_button],
+                            actions_alignment=ft.MainAxisAlignment.END
+                        )
+
+                        page.overlay.append(acceptance_dialog)
+                        acceptance_dialog.open = True
+                        page.update()
 
                         accept_or_decline = input(f'Would you like to receive the file(s)? [a/d] ').lower()
                         print(accept_or_decline)
