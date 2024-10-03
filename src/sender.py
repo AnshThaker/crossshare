@@ -85,7 +85,6 @@ class Sender:
                 page.update()
             else:
                 send_dialog.open = False
-                page.update()
                 snack.content = ft.Text('Receiver declined the file(s).', color=ft.colors.BLACK)
                 snack.open = True
                 page.update()

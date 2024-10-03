@@ -71,25 +71,45 @@ class Receiver:
                             time.sleep(.1)
 
                         if self.__acceptance == 'a':
+                            receiving_file_text = ft.Text('Receiving files...', size=14)
+                            receiving_files_progressbar = ft.ProgressBar(width=400, color='#3478f5', bgcolor='#eeeeee', value=0)
+                            receiving_files_col = ft.Column(
+                                [
+                                    receiving_file_text,
+                                    receiving_files_progressbar,
+                                ],
+                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                tight=True
+                            )
+
+                            acceptance_dialog.content = receiving_files_col
+                            acceptance_dialog.actions = None
+                            acceptance_dialog.actions_alignment = None
+                            page.update()
+
                             conn.sendall(b'accept')
-                            # initialise progressbar
 
                             for file_name in file_names:
+                                receiving_file_text.value = f'Receiving file: {file_name}'
+                                page.update()
                                 with open(file_name, 'wb') as file:
                                     while True:
                                         data = conn.recv(self.__chunk_size)
                                         if data.endswith(b'<END>'):
                                             data = data[:-5]
                                             file.write(data)
-                                            # update progressbar
+                                            receiving_files_progressbar.value += (len(data)) / (total_file_size)
+                                            page.update()
                                             break
                                         file.write(data)
-                                        # update progressbar
+                                        receiving_files_progressbar.value += (len(data)) / (total_file_size)
+                                        page.update()
                                 snack.content = ft.Text(f'Received file from {sender_hostname}: {file_name}', color=ft.colors.BLACK)
                                 snack.open = True
                                 page.update()
                                 conn.sendall(b'completed')
-                            # close progressbar
+                            acceptance_dialog.open = False
+                            page.update()
                         elif self.__acceptance == 'd':
                             conn.sendall(b'decline')
                             acceptance_dialog.open = False
