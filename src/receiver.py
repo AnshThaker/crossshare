@@ -3,6 +3,7 @@ import socket
 import ast
 import flet as ft
 import time
+import math
 
 class Receiver:
     def __init__(self):
@@ -14,6 +15,16 @@ class Receiver:
     def __remove_receiving_error_dialog(page, dialog):
         dialog.open = False
         page.update()
+    
+    @staticmethod
+    def __convert_size(size_bytes):
+        if size_bytes == 0:
+            return '0 bytes'
+        size_name = ('bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB')
+        index = int(math.floor(math.log(size_bytes, 1024)))
+        power = math.pow(1024, index)
+        size = round(size_bytes / power, 2)
+        return '%s %s' % (size, size_name[index])
     
     def __handle_accept(self, e):
         self.__acceptance = 'a'
@@ -50,7 +61,7 @@ class Receiver:
                         for index, file_name in enumerate(file_names):
                             files_list_view.controls.append(ft.Text(f'File {index + 1}: {file_name}', size=12))
                         files_list_view.controls.append(ft.Divider())
-                        files_list_view.controls.append(ft.Text(f'Total Size: {total_file_size} bytes', size=14))
+                        files_list_view.controls.append(ft.Text(f'Total Size: {self.__convert_size(total_file_size)}', size=14))
 
                         accept_button = ft.ElevatedButton('Accept', icon='check', on_click=self.__handle_accept)
                         decline_button = ft.ElevatedButton('Decline', icon='close', on_click=self.__handle_decline)
