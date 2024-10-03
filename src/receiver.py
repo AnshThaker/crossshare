@@ -2,16 +2,24 @@ from constants import listening_port, chunk_size
 import socket
 import ast
 import flet as ft
+import time
 
 class Receiver:
     def __init__(self):
         self.__listening_port = listening_port
         self.__chunk_size = chunk_size
+        self.__acceptance = None
 
     @staticmethod
     def __remove_receiving_error_dialog(page, dialog):
         dialog.open = False
         page.update()
+    
+    def __handle_accept(self, e):
+        self.__acceptance = 'a'
+    
+    def __handle_decline(self, e):
+        self.__acceptance = 'd'
 
     def receive_file(self, page, snack):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
@@ -35,14 +43,34 @@ class Receiver:
                             page.overlay.append(snack)
                         snack.open = True
                         page.update()
+
+                        files_list_view = ft.ListView(height=300)
+                        files_list_view.controls.append(ft.Text(f'Would you like to receive these files from {sender_hostname}?', size=14))
+                        files_list_view.controls.append(ft.Divider())
                         for index, file_name in enumerate(file_names):
-                            print(f'File {index + 1}: {file_name}')
-                        print(f"Total Size: {total_file_size} bytes")
+                            files_list_view.controls.append(ft.Text(f'File {index + 1}: {file_name}', size=12))
+                        files_list_view.controls.append(ft.Divider())
+                        files_list_view.controls.append(ft.Text(f'Total Size: {total_file_size} bytes', size=14))
 
-                        accept_or_decline = input(f'Would you like to receive the file(s)? [a/d] ').lower()
-                        print(accept_or_decline)
+                        accept_button = ft.ElevatedButton('Accept', icon='check', on_click=self.__handle_accept)
+                        decline_button = ft.ElevatedButton('Decline', icon='close', on_click=self.__handle_decline)
 
-                        if accept_or_decline == 'a':
+                        acceptance_dialog = ft.AlertDialog(
+                            title=ft.Text('Incoming file(s)'),
+                            modal=True,
+                            content=files_list_view,
+                            actions=[accept_button, decline_button],
+                            actions_alignment=ft.MainAxisAlignment.END
+                        )
+
+                        page.overlay.append(acceptance_dialog)
+                        acceptance_dialog.open = True
+                        page.update()
+
+                        while not self.__acceptance:
+                            time.sleep(.1)
+
+                        if self.__acceptance == 'a':
                             conn.sendall(b'accept')
                             # initialise progressbar
 
@@ -62,11 +90,14 @@ class Receiver:
                                 page.update()
                                 conn.sendall(b'completed')
                             # close progressbar
-                        else:
+                        elif self.__acceptance == 'd':
                             conn.sendall(b'decline')
+                            acceptance_dialog.open = False
                             snack.content = ft.Text('File(s) declined.', color=ft.colors.BLACK)
                             snack.open = True
                             page.update()
+                        
+                        self.__acceptance = None
                 except Exception as error:
                     receiving_error_dialog = ft.AlertDialog(
                         title=ft.Text('Error receiving file(s)'),
