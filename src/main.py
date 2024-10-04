@@ -100,19 +100,12 @@ def main(page: ft.Page):
         send_dialog.open = True
         page.update()
         
-        # for i in range(20):
-        #     devices_list_view.controls.append(ft.ListTile(title=ft.Text('Test'), subtitle=ft.Text('Secondary test'), mouse_cursor=ft.MouseCursor.CLICK, leading=ft.Icon(ft.icons.LAPTOP_WINDOWS_ROUNDED), hover_color=ft.colors.GREY))
-        #     send_dialog.content = devices_list_view
-        #     send_dialog.actions = [close_send_dialog_button]
-        #     send_dialog.actions_alignment = ft.MainAxisAlignment.END
-        #     page.update()
-        
         try:
             devices = broadcaster.listen_for_devices(5)
             if devices:
                 for ip, (hostname, os_name) in devices.items():
                     icon = get_icon_for_os(os_name)
-                    devices_list_view.controls.append(ft.ListTile(title=ft.Text(hostname), subtitle=ft.Text(ip), mouse_cursor=ft.MouseCursor.CLICK, leading=ft.Icon(icon), on_click=lambda e: open_file_dialog(e, ip, send_dialog)))
+                    devices_list_view.controls.append(ft.ListTile(title=ft.Text(hostname), subtitle=ft.Text(ip), mouse_cursor=ft.MouseCursor.CLICK, leading=ft.Icon(icon), on_click=lambda e: open_file_dialog(e, e.control.subtitle.value, send_dialog)))
                 send_dialog.content = devices_list_view
                 send_dialog.actions = [close_send_dialog_button, refresh_send_dialog_button]
                 send_dialog.actions_alignment = ft.MainAxisAlignment.END
