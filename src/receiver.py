@@ -1,14 +1,16 @@
-from constants import listening_port, chunk_size
+import constants
 import socket
 import ast
 import flet as ft
 import time
 import math
+import os
+import platform
 
 class Receiver:
     def __init__(self):
-        self.__listening_port = listening_port
-        self.__chunk_size = chunk_size
+        self.__listening_port = constants.listening_port
+        self.__chunk_size = constants.chunk_size
         self.__acceptance = None
 
     @staticmethod
@@ -25,6 +27,24 @@ class Receiver:
         power = math.pow(1024, index)
         size = round(size_bytes / power, 2)
         return '%s %s' % (size, size_name[index])
+    
+    @staticmethod
+    def __get_downloads_folder():
+        if platform.system() == constants.os_windows:
+            return os.path.join(os.path.expanduser('~'), 'Downloads')
+        elif platform.system() == constants.os_mac:
+            return os.path.join(os.path.expanduser('~'), 'Downloads')
+        elif platform.system() == 'Linux':
+            if os.path.exists('/storage/Download'):
+                return '/storage/Download'
+            elif os.path.exists('/storage/emulated/0/Download'):
+                return '/storage/emulated/0/Download'
+            elif os.path.exists('/sdcard/Download'):
+                return '/sdcard/Download'
+            elif os.path.exists(os.path.join(os.path.expanduser('~'), 'Download')):
+                return os.path.join(os.path.expanduser('~'), 'Download')
+            else:
+                return os.getcwd()
     
     def __handle_accept(self, e):
         self.__acceptance = 'a'
@@ -98,12 +118,17 @@ class Receiver:
                             acceptance_dialog.actions_alignment = None
                             page.update()
 
+                            downloads_dir = self.__get_downloads_folder()
+
                             conn.sendall(b'accept')
 
                             for file_name in file_names:
                                 receiving_file_text.value = f'Receiving file: {file_name}'
                                 page.update()
-                                with open(file_name, 'wb') as file:
+
+                                file_path = os.path.join(downloads_dir, file_name)
+
+                                with open(file_path, 'wb') as file:
                                     while True:
                                         data = conn.recv(self.__chunk_size)
                                         if data.endswith(b'<END>'):
