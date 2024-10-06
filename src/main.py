@@ -73,7 +73,7 @@ def main(page: ft.Page):
         broadcaster.clear_discovered_devices()
 
         searching_progress_ring = ft.ProgressRing(color='#3478f5')
-        searching_text = ft.Text('Searching for available devices...', size=14)
+        searching_text = ft.Text('Searching for available devices...', size=12)
         searching_row = ft.Row(
             [
                 searching_progress_ring,
@@ -131,7 +131,7 @@ def main(page: ft.Page):
     
     send_button = ft.ElevatedButton('Send', icon='send_rounded', on_click=send)
     icon = ft.Image(
-        src='./icon.png',
+        src='./logo.png',
         width=100,
         height=100,
         fit=ft.ImageFit.CONTAIN,
