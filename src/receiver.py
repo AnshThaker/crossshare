@@ -76,7 +76,7 @@ class Receiver:
                         page.update()
 
                         files_list_view = ft.ListView(height=300)
-                        files_list_view.controls.append(ft.Text(f'Would you like to receive these files from {sender_hostname}?', size=14))
+                        files_list_view.controls.append(ft.Text(f'Would you like to receive these file(s) from {sender_hostname}?', size=14))
                         files_list_view.controls.append(ft.Divider())
                         for index, file_name in enumerate(file_names):
                             files_list_view.controls.append(ft.Text(f'File {index + 1}: {file_name}', size=12))
