@@ -35,14 +35,10 @@ class Receiver:
         elif platform.system() == constants.os_mac:
             return os.path.join(os.path.expanduser('~'), 'Downloads')
         elif platform.system() == 'Linux':
-            if os.path.exists('/storage/Download'):
-                return '/storage/Download'
-            elif os.path.exists('/storage/emulated/0/Download'):
-                return '/storage/emulated/0/Download'
-            elif os.path.exists('/sdcard/Download'):
-                return '/sdcard/Download'
-            elif os.path.exists(os.path.join(os.path.expanduser('~'), 'Download')):
-                return os.path.join(os.path.expanduser('~'), 'Download')
+            if os.path.exists('/storage/emulated/0/Documents'):
+                return '/storage/emulated/0/Documents'
+            elif os.path.exists('/sdcard/Documents'):
+                return '/sdcard/Documents'
             else:
                 return os.getcwd()
     
