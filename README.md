@@ -1,4 +1,4 @@
-# CrossShare
+# CrossShare v1.0
 CrossShare is a seamless and cross-platform file sharing application that allows users to easily transfer files between devices on a local network.
 <br>
 <br>
